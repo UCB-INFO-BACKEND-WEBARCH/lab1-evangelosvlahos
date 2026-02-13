@@ -67,7 +67,7 @@ def check_password_strength(password):
         elif ((len(password) >= 8)):
             score = score + 20
         
-        special_characters = "!@#$%"
+        special_characters = string.punctuation
         has_num = False
         has_special_char = False
         has_upper = False
@@ -127,7 +127,8 @@ def generate_password(length=12, use_special=True):
     if (length < 8):         
         return "Password is too short. Must be at least 8 characters."    
     
-    special_characters = "!@#$%"
+    special_characters = string.punctuation
+
     characters = string.ascii_letters + string.digits
     if (use_special):
         characters = characters + special_characters
