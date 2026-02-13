@@ -3,10 +3,15 @@ Password Security Tool - INFO 153B/253B Lab 1
 
 Analyze password strength and generate secure passwords.
 
+AUTHOR: Evan Vlahos
+
 """
 
 import string
 import random
+import pandas as pd
+import numpy as np
+import re
 
 # Common weak passwords
 COMMON_PASSWORDS = [
@@ -50,7 +55,43 @@ def check_password_strength(password):
     
     Hint: Use .isdigit(), .isupper(), .islower() and string.punctuation
     """
-    # TODO: Implement this function
+    score = 0
+    if not password:
+        score = 0
+    else:
+        if ((password in COMMON_PASSWORDS) == False):
+            score = score + 10
+        
+        if ((len(password) >= 12)):
+            score = score + 30
+        elif ((len(password) >= 8)):
+            score = score + 20
+        
+        special_characters = "!@#$%"
+        has_num = False
+        has_special_char = False
+        has_upper = False
+        has_lower = False
+
+        for i in np.arange(len(password)):
+            if (password[i].isdigit()):
+                has_num = True
+            elif (password[i].isupper()):
+                has_upper = True
+            elif (password[i].islower()): 
+                has_lower = True
+            elif (password[i] in special_characters):
+                has_special_char = True
+            
+        has_arr = [has_num, has_special_char, has_upper, has_lower]
+        score = score + (np.sum(has_arr) * 20)
+    
+    if ((score >= 0) and (score < 40)):
+        return {"strength": "Weak", "score": score, "password": password, "feedback": "Your password is too weak."}
+    elif ((score >= 40) and (score < 70)):
+        return {"strength": "Medium", "score": score, "password": password, "feedback": "Your password is acceptable."}
+    else:
+        return {"strength": "Strong", "score": score, "password": password, "feedback": "Your password is strong."}
     pass
 
 
@@ -82,7 +123,66 @@ def generate_password(length=12, use_special=True):
     Hint: Use string.ascii_uppercase, string.ascii_lowercase, 
           string.digits, and random.choice()
     """
-    # TODO: Implement this function
+
+    if (length < 8):         
+        return "Password is too short. Must be at least 8 characters."    
+    
+    special_characters = "!@#$%"
+    characters = string.ascii_letters + string.digits
+    if (use_special):
+        characters = characters + special_characters
+    
+    # make a password with 4 fewer characters to accomodate the 4 conditions
+    result = ''.join(random.choice(characters) for _ in range(length - 4))
+
+    # check to make sure we have at least a number, special character, uppercase, lowercase characters 
+    has_upper = False
+    has_lower = False
+    has_digit = False
+    has_special = False
+    for i in np.arange(len(result)):
+        if (result[i].isdigit()):
+            has_digit = True
+        elif (result[i].isupper()):
+            has_upper = True
+        elif(result[i].islower()):
+            has_lower = True
+        elif (result[i] in special_characters):
+            has_special = True
+
+    # Check if the password has a digit in its string
+    if (has_digit):
+        # If it has a digit, just append another random character
+        result = result + ''.join(random.choice(characters))
+    else:
+        # If there is no digit, append a random digit
+        result = result + ''.join(random.choice(string.digits))
+
+    # Check if the password has a special character in its string
+    if (has_special or (use_special == False)):
+        # If it has a special character or if the use_special flag is False, just append another random character
+        result = result + ''.join(random.choice(characters))
+    else:
+        # If no special character is present, append a random special character from the special_characters list 
+        result = result + ''.join(random.choice(special_characters))
+
+    # Check if the password has an uppercase in its string
+    if (has_upper):
+        # If it has a uppercase, just append another random character
+        result = result + ''.join(random.choice(characters))
+    else:
+        # If there is no uppercase, append a random uppercase letter
+        result = result + ''.join(random.choice(string.ascii_uppercase))
+
+    # Check if the password has an lowercase in its string
+    if (has_lower):
+        # If it has a lowercase, just append another random character
+        result = result + ''.join(random.choice(characters))
+    else:
+        # If there is no lowercase, append a random lowercase letter
+        result = result + ''.join(random.choice(string.ascii_lowercase))
+
+    return result
     pass
 
 
